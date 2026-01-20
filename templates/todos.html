@@ -10,22 +10,22 @@
 
   <div class="card mb-3">
     <div class="card-body">
-      <form class="row g-2 align-items-end" id="filters">
-        <div class="col-auto">
-          <label class="form-label">날짜</label>
-          <input type="date" id="filter-date" class="form-control">
+      <form class="d-flex flex-row flex-nowrap align-items-end gap-2" id="filters">
+        <div class="form-group mb-0">
+          <label class="form-label small d-block">날짜</label>
+          <input type="date" id="filter-date" class="form-control form-control-sm">
         </div>
-        <div class="col-auto">
-          <label class="form-label">카테고리</label>
-          <select id="filter-cat" class="form-select">
+        <div class="form-group mb-0">
+          <label class="form-label small d-block">카테고리</label>
+          <select id="filter-cat" class="form-select form-select-sm">
             <option value="">전체</option>
             <option value="study">학습</option>
             <option value="personal">개인</option>
             <option value="work">업무</option>
           </select>
         </div>
-        <div class="col-auto">
-          <button type="button" id="apply" class="btn btn-primary">적용</button>
+        <div class="d-flex align-items-end mb-0">
+          <button type="button" id="apply" class="btn btn-primary btn-sm">적용</button>
         </div>
       </form>
     </div>
@@ -34,24 +34,16 @@
   <div class="card mb-3">
     <div class="card-body">
       <h5 class="card-title">새 할 일 추가</h5>
-      <div class="row g-2 align-items-end">
-        <div class="col-md-5">
-          <input id="title" class="form-control" placeholder="제목">
-        </div>
-        <div class="col-auto">
-          <input type="date" id="date" class="form-control" value="">
-        </div>
-        <div class="col-auto">
-          <select id="category" class="form-select">
-            <option value="study">학습</option>
-            <option value="personal">개인</option>
-            <option value="work">업무</option>
-          </select>
-        </div>
-        <div class="col-auto">
-          <button id="create" class="btn btn-success">추가</button>
-        </div>
-      </div>
+      <form class="d-flex flex-row flex-nowrap gap-2 align-items-end" id="add-form">
+        <input id="title" class="form-control form-control-sm" placeholder="제목" style="min-width:220px">
+        <input type="date" id="date" class="form-control form-control-sm" style="max-width:150px">
+        <select id="category" class="form-select form-select-sm" style="max-width:140px">
+          <option value="study">학습</option>
+          <option value="personal">개인</option>
+          <option value="work">업무</option>
+        </select>
+        <button id="create" class="btn btn-success btn-sm">추가</button>
+      </form>
     </div>
   </div>
 
@@ -74,10 +66,19 @@ async function fetchItems(){
   const container = document.getElementById('items')
   container.innerHTML = ''
   data.forEach(i=>{
-    const badge = i.category==='study' ? 'primary' : (i.category==='personal' ? 'warning' : 'info')
+    const map = {study: 'danger', personal: 'primary', work: 'success'}
+    const badge = map[i.category] || 'secondary'
     const node = document.createElement('div')
     node.className = 'list-group-item d-flex justify-content-between align-items-center'
-    node.innerHTML = `<div><strong>${i.title}</strong> <div class="text-muted small">${i.date}</div></div><div><span class="badge bg-${badge} me-2">${i.category}</span><button data-id="${i.id}" class="btn btn-sm btn-outline-danger del">Delete</button></div>`
+    node.innerHTML = `
+      <div class="d-flex flex-column me-3" style="min-width:0">
+        <div class="fw-semibold text-truncate">${i.title}</div>
+        <div class="text-muted small text-truncate">${i.date}</div>
+      </div>
+      <div class="d-flex align-items-center">
+        <span class="badge bg-${badge} me-2 text-capitalize">${i.category}</span>
+        <button data-id="${i.id}" class="btn btn-sm btn-outline-danger del">삭제</button>
+      </div>`
     container.appendChild(node)
   })
 }

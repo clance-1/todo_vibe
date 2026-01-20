@@ -18,3 +18,8 @@ h1 { color: #333 }
 
 /* Let Bootstrap handle buttons/inputs/forms; avoid global button styles */
 
+/* Ensure list items stay on one line with truncation for long titles */
+.list-group-item .fw-semibold { max-width: 420px }
+.text-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+
+
