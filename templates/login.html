@@ -5,13 +5,13 @@
   <title>Login - ToDo Demo</title>
 </head>
 <body>
-  <h1>Login</h1>
+  <h1>로그인</h1>
   <form method="post" action="/login">
-    <label>Username: <input name="username"></label><br>
-    <label>Password: <input name="password" type="password"></label><br>
-    <button type="submit">Login</button>
+    <label>사용자명: <input name="username" placeholder="사용자명"></label><br>
+    <label>비밀번호: <input name="password" type="password" placeholder="비밀번호"></label><br>
+    <button type="submit">로그인</button>
   </form>
-  <p>or <a href="/register">Register</a></p>
+  <p>계정이 없으신가요? <a href="/register">회원가입</a></p>
   {% with messages = get_flashed_messages() %}
     {% if messages %}
       <ul>

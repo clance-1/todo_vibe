@@ -3,43 +3,38 @@
 <head>
   <meta charset="utf-8">
   <title>ToDo - Demo</title>
-  <style>
-    .item { padding:8px; margin:4px; border-radius:4px; }
-    .cat-study { background:#ffcccc; }
-    .cat-personal { background:#cce5ff; }
-    .cat-work { background:#ccffcc; }
-  </style>
+  <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-  <h1>ToDo List</h1>
-  <p>Logged in as {{ current_user.username }} — <a href="/logout">Logout</a></p>
+  <h1>할 일 목록</h1>
+  <p>로그인: {{ current_user.username }} — <a href="/logout">로그아웃</a></p>
 
   <div>
-    <label>Date: <input type="date" id="filter-date"></label>
-    <label>Category:
+    <label>날짜: <input type="date" id="filter-date"></label>
+    <label>카테고리:
       <select id="filter-cat">
-        <option value="">All</option>
+        <option value="">전체</option>
         <option value="study">학습</option>
         <option value="personal">개인</option>
         <option value="work">업무</option>
       </select>
     </label>
-    <button id="apply">Apply</button>
+    <button id="apply">적용</button>
   </div>
 
-  <h2>Create</h2>
+  <h2>새 할 일 추가</h2>
   <div>
-    <input id="title" placeholder="title">
+    <input id="title" placeholder="제목">
     <input type="date" id="date" value="">
     <select id="category">
       <option value="study">학습</option>
       <option value="personal">개인</option>
       <option value="work">업무</option>
     </select>
-    <button id="create">Create</button>
+    <button id="create">추가</button>
   </div>
 
-  <h2>Items</h2>
+  <h2>목록</h2>
   <div id="items"></div>
 
 <script>
