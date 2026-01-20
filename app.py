@@ -12,7 +12,10 @@ from app_schemas import TodoCreate, TodoUpdate
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'dev-secret'
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI', 'sqlite:///todo.db')
+# Ensure a stable, repo-relative instance DB by default so data persists across restarts
+os.makedirs(app.instance_path, exist_ok=True)
+default_db_path = os.path.join(app.instance_path, 'todo.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI', f'sqlite:///{default_db_path}')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
