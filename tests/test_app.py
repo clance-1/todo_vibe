@@ -1,4 +1,9 @@
+import sys
+import pathlib
 import pytest
+
+# Ensure project root is on sys.path so tests can import app
+sys.path.append(str(pathlib.Path(__file__).resolve().parents[1]))
 from app import app, db, User, Todo
 
 

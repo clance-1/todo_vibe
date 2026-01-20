@@ -8,6 +8,18 @@
 - 스타일: `static/style.css`를 Bootstrap 친화적으로 정리하여 충돌 최소화 및 데모 색상 보존(카테고리 색상)
 - 인프라: Alembic 마이그레이션 스캐폴딩 및 `docker-compose`(Postgres) 지원 추가
 - 브랜치: 변경사항은 원격 브랜치 `001-flask-todo-app`에 푸시되어 있습니다.
+- 브랜치: 변경사항은 원격 브랜치 `001-flask-todo-app`에 푸시되어 있습니다.
+
+Recent updates (2026-01-20):
+
+- Navigation simplified: the site brand/logo now links to `/todos`. Redundant `홈` / `내 할일` links were removed; authenticated users see only `로그아웃`, guests see `로그인`/`회원가입`.
+- Route alias: `/todos` is supported and redirects to the canonical `todos_page` route to maintain compatibility with older links.
+- Templates restored/rebuilt: `templates/base.html`, `templates/login.html`, `templates/register.html`, and `templates/todos.html` were rewritten to match the updated UI spec.
+- Validation and schemas: `app_schemas.py` updated to validate `category` choices and use date typing; partial updates supported in `TodoUpdate`.
+- Tests: comprehensive API tests added in `tests/test_api_full.py` covering success, validation failures, auth failures, authorization, paging, and edge cases. All tests pass locally (`pytest` — 5 passed).
+- Debug helper: `scripts/debug_api.py` added to assist reproducing API requests locally during development.
+
+If you maintain external links or bookmarks, point them to `/todos` (or the root URL which redirects to login when unauthenticated).
 
 Prerequisites
 

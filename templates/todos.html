@@ -3,107 +3,139 @@
 {% block title %}ToDo - Demo{% endblock %}
 
 {% block content %}
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-0">ToDo List / 할 일 목록</h1>
-    <div>
-      <a class="btn btn-outline-secondary me-2" href="/">홈</a>
-      <a class="btn btn-outline-secondary" href="/logout">로그아웃</a>
-    </div>
-  </div>
+	<div class="d-flex justify-content-between align-items-center mb-3">
+		<h1 class="h3 mb-0">ToDo List / 할 일 목록</h1>
+	</div>
 
-  <div class="card mb-3">
-    <div class="card-body">
-      <form class="d-flex flex-row flex-nowrap gap-2 align-items-end" id="filters">
-        <input type="date" id="filter-date" class="form-control form-control-sm" style="max-width:160px" aria-label="filter date">
-        <select id="filter-cat" class="form-select form-select-sm" style="max-width:160px" aria-label="filter category">
-          <option value="">전체</option>
-          <option value="study">학습</option>
-          <option value="personal">개인</option>
-          <option value="work">업무</option>
-        </select>
-        <button type="button" id="apply" class="btn btn-primary btn-sm">적용</button>
-      </form>
-    </div>
-  </div>
+	<div class="card mb-3">
+		<div class="card-body">
+			<form class="d-flex flex-row flex-wrap gap-2 align-items-end" id="filters">
+				<label class="form-label visually-hidden" for="filter-date">날짜</label>
+				<input type="date" id="filter-date" class="form-control form-control-sm" style="max-width:160px" aria-label="filter date">
+				<label class="form-label visually-hidden" for="filter-cat">카테고리</label>
+				<select id="filter-cat" class="form-select form-select-sm" style="max-width:160px" aria-label="filter category">
+					<option value="">전체</option>
+					<option value="study">학습</option>
+					<option value="personal">개인</option>
+					<option value="work">업무</option>
+				</select>
+				<button type="button" id="apply" class="btn btn-primary btn-sm">적용</button>
+			</form>
+		</div>
+	</div>
 
-  <div class="card mb-3">
-    <div class="card-body">
-      <h5 class="card-title">새 할 일 추가</h5>
-      <form class="d-flex flex-row flex-nowrap gap-2 align-items-end" id="add-form">
-        <input id="title" class="form-control form-control-sm todo-title" placeholder="제목" style="min-width:220px">
-        <input type="date" id="date" class="form-control form-control-sm" style="max-width:150px">
-        <select id="category" class="form-select form-select-sm" style="max-width:140px">
-          <option value="study">학습</option>
-          <option value="personal">개인</option>
-          <option value="work">업무</option>
-        </select>
-        <button id="create" class="btn btn-success btn-sm">추가</button>
-      </form>
-    </div>
-  </div>
+	<div class="card mb-3">
+		<div class="card-body">
+			<h5 class="card-title">새 할 일 추가</h5>
+			<form class="d-flex flex-row flex-wrap gap-2 align-items-end" id="add-form">
+				<input id="title" class="form-control form-control-sm todo-title" placeholder="제목" style="min-width:220px">
+				<input type="date" id="date" class="form-control form-control-sm" style="max-width:150px" {% if current_user.is_authenticated %}disabled{% endif %}>
+				<select id="category" class="form-select form-select-sm" style="max-width:140px">
+					<option value="study">학습</option>
+					<option value="personal">개인</option>
+					<option value="work">업무</option>
+				</select>
+				<button id="create" class="btn btn-success btn-sm">추가</button>
+			</form>
+		</div>
+	</div>
 
-  <h2 class="h5">목록</h2>
-  <div id="items" class="list-group"></div>
+	<h2 class="h5">목록</h2>
+	<div class="card">
+		<div class="card-body p-0">
+			<div id="items" class="list-group list-group-flush"></div>
+		</div>
+	</div>
 {% endblock %}
 
 {% block scripts %}
 <script>
 async function fetchItems(){
-  const date = document.getElementById('filter-date').value
-  const cat = document.getElementById('filter-cat').value
-  let url = '/api/todos'
-  const params = []
-  if(date) params.push('date='+date)
-  if(cat) params.push('category='+cat)
-  if(params.length) url += '?' + params.join('&')
-  const res = await fetch(url)
-  const data = await res.json()
-  const container = document.getElementById('items')
-  container.innerHTML = ''
-  data.forEach(i=>{
-    const node = document.createElement('div')
-    node.className = 'list-group-item'
-    node.innerHTML = `
-      <form class="d-flex flex-row flex-nowrap gap-2 align-items-center mb-0" data-id="${i.id}">
-        <input type="text" class="form-control form-control-sm todo-title" value="${i.title}" readonly style="min-width:220px">
-        <input type="date" class="form-control form-control-sm" value="${i.date}" readonly style="max-width:150px">
-        <select class="form-select form-select-sm" disabled style="max-width:140px">
-          <option value="study" ${i.category==='study'?'selected':''}>학습</option>
-          <option value="personal" ${i.category==='personal'?'selected':''}>개인</option>
-          <option value="work" ${i.category==='work'?'selected':''}>업무</option>
-        </select>
-        <span class="badge category-badge me-2 text-capitalize category-${i.category}">${i.category}</span>
-        <button data-id="${i.id}" class="btn btn-sm btn-outline-danger del">삭제</button>
-      </form>`
-    container.appendChild(node)
-  })
+	const date = document.getElementById('filter-date').value
+	const cat = document.getElementById('filter-cat').value
+	let url = '/api/todos'
+	const params = []
+	if(date) params.push('date='+encodeURIComponent(date))
+	if(cat) params.push('category='+encodeURIComponent(cat))
+	if(params.length) url += '?' + params.join('&')
+	const res = await fetch(url)
+	if(!res.ok){ console.error('fetch error', res.status); return }
+	const data = await res.json()
+	const container = document.getElementById('items')
+	container.innerHTML = ''
+	data.forEach(i=>{
+		const node = document.createElement('div')
+		node.className = 'list-group-item'
+		const dateParts = (i.date||'').split('-')
+		const dateDisplay = dateParts.length===3 ? `${dateParts[0]}/${dateParts[1]}/${dateParts[2]}` : (i.date||'')
+		const kcat = {'study':'학습','personal':'개인','work':'업무'}[i.category]||i.category
+		node.innerHTML = `
+			<div class="d-flex align-items-center justify-content-between py-2">
+				<div class="d-flex align-items-center gap-3">
+					<div class="form-check">
+						<input class="form-check-input todo-done" type="checkbox" data-id="${i.id}" ${i.completed? 'checked':''}>
+					</div>
+					<span class="badge category-badge category-${i.category}">${kcat}</span>
+					<div>
+						<div class="fw-semibold">${i.title}</div>
+						<div class="text-muted small">${i.note||''}</div>
+					</div>
+				</div>
+				<div class="d-flex align-items-center gap-2">
+					<div class="text-muted small">${dateDisplay}</div>
+					<button data-id="${i.id}" class="btn btn-sm btn-outline-danger del">삭제</button>
+				</div>
+			</div>`
+		container.appendChild(node)
+	})
 }
 
 document.getElementById('apply').addEventListener('click', fetchItems)
 
 document.getElementById('create').addEventListener('click', async (e)=>{
-  e.preventDefault()
-  const title = document.getElementById('title').value
-  const date = document.getElementById('date').value
-  const category = document.getElementById('category').value
-  const res = await fetch('/api/todos', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({title, date, category})})
-  if(res.status===201){
-    document.getElementById('title').value=''
-    fetchItems()
-  } else {
-    alert('create failed')
-  }
+	e.preventDefault()
+	const title = document.getElementById('title').value
+	const date = document.getElementById('date').value
+	const category = document.getElementById('category').value
+	const res = await fetch('/api/todos', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({title, date, category})})
+	if(res.status===201){
+		document.getElementById('title').value=''
+		fetchItems()
+	} else {
+		alert('create failed')
+	}
 })
 
 document.getElementById('items').addEventListener('click', async (e)=>{
-  if(e.target.classList.contains('del')){
-    const id = e.target.dataset.id
-    await fetch('/api/todos/'+id, {method:'DELETE'})
-    fetchItems()
-  }
+	if(e.target.classList.contains('del')){
+		const id = e.target.dataset.id
+		await fetch('/api/todos/'+id, {method:'DELETE'})
+		fetchItems()
+	}
 })
+
+document.getElementById('items').addEventListener('change', async (e)=>{
+	if(e.target.classList.contains('todo-done')){
+		const id = e.target.dataset.id
+		const completed = e.target.checked
+		await fetch('/api/todos/'+id, {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({completed})})
+		fetchItems()
+	}
+})
+
+// if user is logged in, default filter/add date to today and disable add-date
+{% if current_user.is_authenticated %}
+;(function(){
+	const today = new Date().toISOString().slice(0,10)
+	const f = document.getElementById('filter-date')
+	const d = document.getElementById('date')
+	if(f) f.value = today
+	if(d) d.value = today
+})()
+{% endif %}
 
 // initial load
 fetchItems()
 </script>
 {% endblock %}
+

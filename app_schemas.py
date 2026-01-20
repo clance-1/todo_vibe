@@ -1,16 +1,19 @@
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, Literal
+from datetime import date
+
 
 class TodoCreate(BaseModel):
     title: str = Field(..., min_length=1)
-    category: str
-    date: str
+    category: Literal['study', 'personal', 'work']
+    date: date
+
 
 class TodoUpdate(BaseModel):
-    title: Optional[str]
-    category: Optional[str]
-    date: Optional[str]
-    completed: Optional[bool]
+    title: Optional[str] = None
+    category: Optional[Literal['study', 'personal', 'work']] = None
+    date: Optional[date] = None
+    completed: Optional[bool] = None
 
 class TodoResponse(BaseModel):
     id: int

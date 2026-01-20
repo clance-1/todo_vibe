@@ -113,6 +113,13 @@ def todos_page():
     return render_template('todos.html')
 
 
+@app.route('/todos')
+@login_required
+def todos_alias():
+    # Alias for legacy /todos link in templates -> redirect to canonical todos_page
+    return redirect(url_for('todos_page'))
+
+
 # API endpoints (authenticated)
 @app.route('/api/todos', methods=['GET', 'POST'])
 @login_required

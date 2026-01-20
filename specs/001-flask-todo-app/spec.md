@@ -18,6 +18,16 @@
 - Alembic scaffolding and initial migration added (`alembic/versions/0001_initial.py`).
 - Docker Compose support for Postgres added; CI updated to run migrations and tests against Postgres.
 - Feature branch `001-flask-todo-app` created and pushed to remote.
+ - UI behavior update (2026-01-20): 로그인 상태일 때 필터의 날짜 기본값을 오늘로 설정하고, 새 할 일 추가 폼의 날짜를 오늘로 고정(입력 비활성화)하도록 프론트엔드 동작을 변경함.
+ - 목록 뷰 변경: 목록에서 날짜는 연도 없이 'MM월 DD일' 형식으로 표시되며, 각 항목의 카테고리 드롭다운을 제거하고 한글 라벨(학습/개인/업무)로 배치하도록 변경함.
+ - 스타일 일관성: 전역 CSS 토큰(`:root`)을 추가하여 네비게이션, 버튼, 배지, 카드 등 UI 전반에 브랜드 그라데이션과 카테고리 색상 매핑을 적용함.
+ - 목록 뷰 변경: UI 시안(표 형태)을 반영하여 목록을 카드/테이블형 행으로 표시하도록 변경함. 각 항목은 체크박스(완료 토글), 카테고리 배지(한글), 제목/메모, 날짜(YYYY/MM/DD) 및 삭제 버튼을 우측에 표시함. 이전의 '연도 제거' 표시 방식은 비주얼 시안 우선으로 변경되어 날짜에 연도를 포함함.
+ - 스타일 일관성: 전역 CSS 토큰(`:root`)을 추가하여 네비게이션, 버튼, 배지, 카드 등 UI 전반에 브랜드 그라데이션과 카테고리 색상 매핑을 적용함.
+ - Navigation simplified: logo/brand now links to `/todos`; redundant `홈`/`내 할일` links removed. Authenticated users see `로그아웃` only; guests see `로그인`/`회원가입`.
+ - Route alias: `/todos` is supported and redirects to the canonical `todos_page` route for compatibility.
+ - Templates rebuilt and restored: `base.html`, `login.html`, `register.html`, `todos.html` updated to match the revised UI spec and layout.
+ - Schemas and tests: `app_schemas.py` updated for stricter validation (`category` literal choices, date typing) and partial updates; comprehensive API tests added (`tests/test_api_full.py`) and pass locally.
+ - Dev tooling: `scripts/debug_api.py` added to help reproduce API flows during development.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -87,6 +97,14 @@
 - **FR-007**: 모든 주요 사용자 흐름(P1)은 자동화된 테스트로 검증되어야 한다.
  - **FR-008**: `GET /api/todos`는 선택적 페이징 파라미터(`page`, `limit`)를 지원해야 한다. 페이징은 클라이언트가 요청한 경우에만 적용되며, 기본 동작은 전체 결과 반환이다.
 
+- **FR-009**: 로그인된 사용자의 UI 동작: 로그인 상태일 때 필터의 날짜는 기본값으로 '오늘'이 설정되어야 하며, 새 할 일 추가 폼의 날짜 필드는 기본값 '오늘'로 채워지고 입력이 비활성화(수정 불가)되어야 한다.
+
+- **FR-010**: 목록 표시 형식: 목록에서 날짜는 연도를 표시하지 않고 `MM월 DD일` 형식으로 표시되어야 하며, 리스트 항목 내에 연도 선택 드롭다운이나 연도 표시 요소는 제거되어야 한다.
+
+- **FR-011**: 목록 항목의 카테고리 선택 요소는 읽기 전용으로 드롭다운을 표시하지 않고, 목록에서는 한글 라벨(학습/개인/업무)로 텍스트 또는 배지로 표시되어야 한다.
+
+- **FR-012**: UI 색상 일관성: 전역 CSS 디자인 토큰(`:root`)을 통해 네비게이션, 버튼, 배지, 카드 등의 색상을 관리해야 하며, 카테고리 색상 매핑(학습=적색, 개인=청색, 업무=녹색)을 유지해야 한다.
+
 ### Key Entities *(include if feature involves data)*
 
 - **User**: id, username, password_hash
@@ -102,6 +120,8 @@ Notes on `date` storage: the `date` attribute is specified as a string in `YYYY-
 - **SC-002**: 날짜 또는 카테고리 필터 쿼리로 요청 시, 테스트 데이터 세트에서 기대되는 항목만 반환되어야 하며(정확도 100%), 관련 테스트가 포함되어야 한다.
 - **SC-003**: 로그인한 사용자는 다른 사용자의 항목을 조회/수정/삭제할 수 없어야 하며(보안 제어), 관련 액세스 제어 테스트가 포함되어야 한다.
 - **SC-004**: UI에서 각 카테고리는 지정된 색상으로 표시되어야 한다(학습=적색, 개인=청색, 업무=녹색) — 수동 데모 검사 또는 스냅샷 테스트로 확인.
+
+- **SC-005**: 로그인된 사용자의 기본 필터/추가 동작이 유효함을 확인: 자동화 또는 수동 검사로 필터의 날짜가 '오늘'로 설정되고, 추가 폼의 날짜가 '오늘'으로 고정(비활성화)되어 있으며, 목록의 날짜가 `MM월 DD일` 형식으로 출력되고 카테고리 배지가 한글 라벨을 표시함을 검증해야 한다.
 
 ## Assumptions
 
