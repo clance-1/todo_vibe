@@ -1,0 +1,159 @@
+openapi: 3.0.0
+info:
+  title: Todo Vibe API
+  version: '1.0.0'
+paths:
+  /api/todos:
+    get:
+      summary: List todos for current user
+      parameters:
+        - name: date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: A list of todos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TodoResponse'
+        '400':
+          description: Bad request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Create a todo for current user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TodoCreate'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoResponse'
+        '400':
+          description: Bad request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/todos/{todo_id}:
+    parameters:
+      - name: todo_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    put:
+      summary: Update a todo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TodoUpdate'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoResponse'
+        '400':
+          description: Bad request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete a todo
+      responses:
+        '204':
+          description: Deleted
+        '404':
+          description: Not found
+        '403':
+          description: Forbidden
+components:
+  schemas:
+    TodoCreate:
+      type: object
+      required: [title, category, date]
+      properties:
+        title:
+          type: string
+        category:
+          type: string
+          enum: [study, personal, work]
+        date:
+          type: string
+          format: date
+    TodoUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        category:
+          type: string
+          enum: [study, personal, work]
+        date:
+          type: string
+          format: date
+        completed:
+          type: boolean
+    TodoResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        category:
+          type: string
+        date:
+          type: string
+        completed:
+          type: boolean
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              loc:
+                type: array
+                items:
+                  type: string
+              msg:
+                type: string
+              type:
+                type: string

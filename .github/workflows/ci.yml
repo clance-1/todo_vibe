@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.11]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Start Postgres service
+        uses: addnab/docker-run-action@v3
+        with:
+          image: postgres:15
+          options: -e POSTGRES_USER=todo_user -e POSTGRES_PASSWORD=secret -e POSTGRES_DB=todo_db -p 5432:5432 -d
+      - name: Wait for Postgres
+        run: |
+          echo "Waiting for Postgres to be ready..."
+          sleep 10
+      - name: Run DB migrations
+        env:
+          SQLALCHEMY_DATABASE_URI: postgresql+psycopg://todo_user:secret@127.0.0.1:5432/todo_db
+        run: |
+          alembic upgrade head
+      - name: Run tests
+        env:
+          SQLALCHEMY_DATABASE_URI: postgresql+psycopg://todo_user:secret@127.0.0.1:5432/todo_db
+        run: |
+          python -m pytest -q

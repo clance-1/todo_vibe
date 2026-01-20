@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, request, abort, render_template, redirect, url_for, flash
+import os
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 """
@@ -6,10 +7,12 @@ NOTE: For demo purposes only — passwords stored/compared in plaintext per user
 THIS IS INSECURE: do NOT use in production.
 """
 from datetime import datetime
+from pydantic import ValidationError
+from app_schemas import TodoCreate, TodoUpdate
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'dev-secret'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///todo.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI', 'sqlite:///todo.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -114,12 +117,29 @@ def api_todos():
     if request.method == 'GET':
         date = request.args.get('date')
         category = request.args.get('category')
+        # paging params (optional)
+        try:
+            page = int(request.args.get('page')) if request.args.get('page') else None
+        except ValueError:
+            return jsonify({'error': 'invalid page', 'details': None}), 400
+        try:
+            limit = int(request.args.get('limit')) if request.args.get('limit') else None
+        except ValueError:
+            return jsonify({'error': 'invalid limit', 'details': None}), 400
         q = Todo.query.filter_by(user_id=current_user.id)
         if date:
             q = q.filter_by(date=date)
         if category:
             q = q.filter_by(category=category)
-        items = q.order_by(Todo.created_at.desc()).all()
+        q = q.order_by(Todo.created_at.desc())
+        # apply slicing if paging provided
+        if page and limit:
+            offset = (page - 1) * limit
+            items = q.offset(offset).limit(limit).all()
+        elif limit:
+            items = q.limit(limit).all()
+        else:
+            items = q.all()
         return jsonify([{
             'id': t.id,
             'title': t.title,
@@ -128,14 +148,13 @@ def api_todos():
             'completed': t.completed
         } for t in items])
 
-    # POST create
+    # POST create with pydantic validation
     data = request.get_json() or {}
-    title = data.get('title')
-    category = data.get('category')
-    date = data.get('date')
-    if not title or not category or not date:
-        return jsonify({'error': 'title, category and date required'}), 400
-    t = Todo(user_id=current_user.id, title=title, category=category, date=date)
+    try:
+        payload = TodoCreate.model_validate(data)
+    except ValidationError as e:
+        return jsonify({'error': 'validation error', 'details': e.errors()}), 400
+    t = Todo(user_id=current_user.id, title=payload.title, category=payload.category, date=payload.date)
     db.session.add(t)
     db.session.commit()
     return jsonify({'id': t.id, 'title': t.title, 'category': t.category, 'date': t.date, 'completed': t.completed}), 201
@@ -152,10 +171,18 @@ def api_todo_modify(todo_id):
         db.session.commit()
         return '', 204
     data = request.get_json() or {}
-    t.title = data.get('title', t.title)
-    t.completed = data.get('completed', t.completed)
-    t.category = data.get('category', t.category)
-    t.date = data.get('date', t.date)
+    try:
+        payload = TodoUpdate.model_validate(data)
+    except ValidationError as e:
+        return jsonify({'error': 'validation error', 'details': e.errors()}), 400
+    if payload.title is not None:
+        t.title = payload.title
+    if payload.completed is not None:
+        t.completed = payload.completed
+    if payload.category is not None:
+        t.category = payload.category
+    if payload.date is not None:
+        t.date = payload.date
     db.session.commit()
     return jsonify({'id': t.id, 'title': t.title, 'category': t.category, 'date': t.date, 'completed': t.completed})
 

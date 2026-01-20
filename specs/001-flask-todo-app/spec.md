@@ -77,11 +77,14 @@
 - **FR-005**: 시스템은 날짜 및 카테고리로 필터링 기능을 제공해야 한다 (쿼리 파라미터 또는 UI 필터).
 - **FR-006**: 카테고리는 세 가지로 제한되어야 한다: `study`, `personal`, `work` (각각 색상 매핑 필요).
 - **FR-007**: 모든 주요 사용자 흐름(P1)은 자동화된 테스트로 검증되어야 한다.
+ - **FR-008**: `GET /api/todos`는 선택적 페이징 파라미터(`page`, `limit`)를 지원해야 한다. 페이징은 클라이언트가 요청한 경우에만 적용되며, 기본 동작은 전체 결과 반환이다.
 
 ### Key Entities *(include if feature involves data)*
 
 - **User**: id, username, password_hash
 - **Todo**: id, user_id, title, category (study|personal|work), date (YYYY-MM-DD), completed, created_at
+
+Notes on `date` storage: the `date` attribute is specified as a string in `YYYY-MM-DD` format for API level interoperability. Implementations MAY store this as a native DATE/DATE-TYPE in the database (recommended for production), but if storage type differs a clear migration path (Alembic) and tests must be included.
 
 ## Success Criteria *(mandatory)*
 
@@ -98,6 +101,27 @@
 - 초기 저장소는 로컬 SQLite로 가정한다(배포 시 다른 DB로 변경 가능).
 - 날짜 형식은 `YYYY-MM-DD`로 통일한다.
  - 등록 방식: 데모 목적상 `self-registration`(사용자 직접 가입)을 허용한다(아이디+비밀번호). 배포 시 설정으로 변경 가능.
+
+Security note (required): The project currently supports a DEMO-ONLY mode where passwords may be stored/compared in plaintext for teaching convenience. THIS IS INSECURE and MUST be explicitly limited to local classroom environments. For any deployment beyond isolated demos, the implementation MUST switch to secure password storage (e.g., bcrypt/werkzeug `generate_password_hash` and `check_password_hash`) and this change MUST be covered by a gating task in `tasks.md` before release.
+
+Error Responses (API):
+
+- All error responses from the API MUST be JSON with the following shape:
+
+```json
+{
+  "error": "short message",
+  "details": [ /* optional array with validation/field errors */ ]
+}
+```
+
+- Typical status codes and uses:
+  - `400` — request validation error (details populated)
+  - `401` — authentication required/invalid credentials
+  - `403` — forbidden (authorization failure)
+  - `404` — resource not found
+
+Include sample error responses in API documentation and ensure `contracts/todo-api.yaml` `ErrorResponse` matches this canonical shape.
 
 ## Implementation Notes (non-mandatory)
 
