@@ -1,7 +1,10 @@
 from flask import Flask, jsonify, request, abort, render_template, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-from werkzeug.security import generate_password_hash, check_password_hash
+"""
+NOTE: For demo purposes only — passwords stored/compared in plaintext per user request.
+THIS IS INSECURE: do NOT use in production.
+"""
 from datetime import datetime
 
 app = Flask(__name__)
@@ -20,10 +23,12 @@ class User(db.Model, UserMixin):
     password_hash = db.Column(db.String(200), nullable=False)
 
     def set_password(self, pw):
-        self.password_hash = generate_password_hash(pw)
+        # store plaintext password (DEMO ONLY)
+        self.password_hash = pw
 
     def check_password(self, pw):
-        return check_password_hash(self.password_hash, pw)
+        # plaintext comparison (DEMO ONLY)
+        return self.password_hash == pw
 
 
 class Todo(db.Model):
