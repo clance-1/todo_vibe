@@ -31,7 +31,14 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+Required checks derived from project constitution (todo_total):
+
+- **Tests**: Each P1 user story MUST include at least one automated test covering the primary flow (create/update/complete/delete/list).
+- **Accessibility**: Basic accessibility checks (keyboard navigation, readable labels) MUST be satisfied for P1 flows.
+- **Privacy**: No unapproved external data collection; data persistence strategy MUST be declared (localStorage/file).
+- **Versioning**: Plan MUST document target release version and intended semver bump type for the feature.
+
+[Use this section to list any constitution violations and mitigation plans]
 
 ## Project Structure
 
