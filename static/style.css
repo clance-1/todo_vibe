@@ -22,3 +22,10 @@ h1 { color: #333 }
 /* Small control sizing helpers */
 .form-control-sm, .form-select-sm { height: calc(1.5em + .5rem + 2px); }
 
+/* Explicit category badge colors to ensure consistent appearance */
+.category-badge { color: #fff }
+.category-study { background: #ff6b6b; }
+.category-personal { background: #3b82f6; }
+.category-work { background: #16a34a; }
+
+
