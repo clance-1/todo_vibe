@@ -62,16 +62,19 @@ async function fetchItems(){
   container.innerHTML = ''
   data.forEach(i=>{
     const node = document.createElement('div')
-    node.className = 'list-group-item d-flex justify-content-between align-items-center'
+    node.className = 'list-group-item'
     node.innerHTML = `
-      <div class="d-flex flex-column me-3" style="min-width:0">
-        <div class="fw-semibold todo-title">${i.title}</div>
-        <div class="text-muted small">${i.date}</div>
-      </div>
-      <div class="d-flex align-items-center">
+      <form class="d-flex flex-row flex-nowrap gap-2 align-items-center mb-0" data-id="${i.id}">
+        <input type="text" class="form-control form-control-sm todo-title" value="${i.title}" readonly style="min-width:220px">
+        <input type="date" class="form-control form-control-sm" value="${i.date}" readonly style="max-width:150px">
+        <select class="form-select form-select-sm" disabled style="max-width:140px">
+          <option value="study" ${i.category==='study'?'selected':''}>학습</option>
+          <option value="personal" ${i.category==='personal'?'selected':''}>개인</option>
+          <option value="work" ${i.category==='work'?'selected':''}>업무</option>
+        </select>
         <span class="badge category-badge me-2 text-capitalize category-${i.category}">${i.category}</span>
         <button data-id="${i.id}" class="btn btn-sm btn-outline-danger del">삭제</button>
-      </div>`
+      </form>`
     container.appendChild(node)
   })
 }
