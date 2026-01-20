@@ -11,6 +11,14 @@
 
 - Q: 가입 방식 — 데모용으로 어떻게 처리할까요? → A: 자체 회원가입 허용 (간단한 아이디(username)와 비밀번호로 즉시 등록).
 
+## Changelog (2026-01-20)
+
+- UI updated: Bootstrap 5 applied across templates (`base.html`, `login.html`, `register.html`, `todos.html`).
+- Static CSS simplified to avoid conflicts with Bootstrap; demo category colors preserved in `static/style.css`.
+- Alembic scaffolding and initial migration added (`alembic/versions/0001_initial.py`).
+- Docker Compose support for Postgres added; CI updated to run migrations and tests against Postgres.
+- Feature branch `001-flask-todo-app` created and pushed to remote.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - 기본 CRUD (Priority: P1)
