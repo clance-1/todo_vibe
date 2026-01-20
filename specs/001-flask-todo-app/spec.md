@@ -5,6 +5,12 @@
 **Status**: Draft
 **Input**: User description: "학생들 종합적 학습을 위한 난이도가 낮은 todo app: 1) 할일은 3개의 카테고리로 분류되며 고유색을 가진다 : 학습(적색), 개인(청색), 업무(녹색); 2) 날짜별로 할일 목록을 저장 할수 있다; 3) 날짜및 카테고리로 필터링 기능을 가진다.; 4) 사용자및 할일 목록등은 DB에 저장되며, 로그인한 사람의 목록 내역만 보인다.; 5) 로그인 페이지와 할일 목록 페이지는 별도로 분리된다."
 
+## Clarifications
+
+### Session 2026-01-20
+
+- Q: 가입 방식 — 데모용으로 어떻게 처리할까요? → A: 자체 회원가입 허용 (간단한 아이디(username)와 비밀번호로 즉시 등록).
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - 기본 CRUD (Priority: P1)
@@ -64,7 +70,7 @@
 
 ### Functional Requirements
 
-- **FR-001**: 시스템은 사용자가 계정을 생성하고 로그인할 수 있어야 한다 (username/password 기반).
+- **FR-001**: 시스템은 사용자가 자체적으로 계정을 생성하고 로그인할 수 있어야 한다 (self-registration 허용, username/password 기반; 최소 입력: 아이디와 비밀번호).
 - **FR-002**: 로그인한 사용자는 자신의 할일을 생성(Create)할 수 있어야 한다. 항목 속성: `title`, `category`, `date`(YYYY-MM-DD), `completed`.
 - **FR-003**: 사용자는 자신의 할일을 수정(Update) 및 삭제(Delete)할 수 있어야 한다.
 - **FR-004**: 시스템은 사용자별 데이터 분리를 보장해야 하며, 로그인한 사용자만 자신의 목록을 조회(Read)할 수 있다.
@@ -91,6 +97,7 @@
 - 인증은 간단한 username/password로 처리하고, 세션 기반 로그인(예: Flask-Login)을 사용한다.
 - 초기 저장소는 로컬 SQLite로 가정한다(배포 시 다른 DB로 변경 가능).
 - 날짜 형식은 `YYYY-MM-DD`로 통일한다.
+ - 등록 방식: 데모 목적상 `self-registration`(사용자 직접 가입)을 허용한다(아이디+비밀번호). 배포 시 설정으로 변경 가능.
 
 ## Implementation Notes (non-mandatory)
 
