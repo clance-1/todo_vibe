@@ -8,18 +8,17 @@ body {
 
 h1 { color: #333 }
 
-/* Preserve lightweight colored backgrounds for any legacy elements */
-.cat-study { background: #fff0f0; }
-.cat-personal { background: #f0f7ff; }
-.cat-work { background: #f0fff0; }
+/* Category color tokens (stronger for visibility) */
+.cat-study { background: linear-gradient(90deg,#ffe6e6,#fff0f0); }
+.cat-personal { background: linear-gradient(90deg,#e6f0ff,#f0f7ff); }
+.cat-work { background: linear-gradient(90deg,#e6ffe6,#f0fff0); }
 
-/* Small helper for list badges */
+/* Badge spacing */
 .list-group-item .badge { margin-right: 0.5rem }
 
-/* Let Bootstrap handle buttons/inputs/forms; avoid global button styles */
+/* Truncate long titles in list items */
+.todo-title { max-width: 420px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
 
-/* Ensure list items stay on one line with truncation for long titles */
-.list-group-item .fw-semibold { max-width: 420px }
-.text-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
-
+/* Small control sizing helpers */
+.form-control-sm, .form-select-sm { height: calc(1.5em + .5rem + 2px); }
 
