@@ -1,37 +1,13 @@
 {
-  "AWSEBDockerrunVersion": "2",
-  "containerDefinitions": [
+  "AWSEBDockerrunVersion": "1",
+  "Image": {
+    "Name": "<DOCKER_USERNAME>/flask-todo-app:latest",
+    "Update": "true"
+  },
+  "Ports": [
     {
-      "name": "web",
-      "image": "<DOCKER_USERNAME>/flask-todo-app:latest",
-      "essential": true,
-      "memory": 512,
-      "portMappings": [
-        {
-          "containerPort": 5000,
-          "hostPort": 80
-        }
-      ],
-      "environment": [
-        { "name": "SQLALCHEMY_DATABASE_URI", "value": "postgresql+psycopg://todo_user:secret@db:5432/todo_db" }
-      ]
-    },
-    {
-      "name": "db",
-      "image": "postgres:15",
-      "essential": true,
-      "memory": 512,
-      "environment": [
-        { "name": "POSTGRES_USER", "value": "todo_user" },
-        { "name": "POSTGRES_PASSWORD", "value": "" },
-        { "name": "POSTGRES_DB", "value": "todo_db" }
-      ],
-      "portMappings": [
-        {
-          "containerPort": 5432,
-          "hostPort": 5432
-        }
-      ]
+      "ContainerPort": "5000"
     }
-  ]
+  ],
+  "Logging": "/var/log/nginx"
 }
