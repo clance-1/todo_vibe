@@ -37,6 +37,10 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 # Import target metadata from the application
+# Prevent the application from creating tables when alembic imports the app
+# (see app.py which respects SKIP_DB_CREATE). Set the env var here so
+# the top-level import of `app` does not call `db.create_all()`.
+os.environ['SKIP_DB_CREATE'] = '1'
 from app import db
 target_metadata = db.metadata
 

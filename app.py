@@ -85,9 +85,15 @@ def load_user(user_id):
     return db.session.get(User, int(user_id))
 
 
-# Create tables at import time (Flask 3 removed before_first_request decorator)
-with app.app_context():
-    db.create_all()
+# Create tables at import time only when not running migrations.
+#
+# Alembic imports this module when running migrations; that import must not
+# cause the application to create tables automatically because Alembic runs
+# the migration scripts that create the schema. Use the `SKIP_DB_CREATE`
+# environment variable to opt-out when Alembic is running.
+if not os.environ.get('SKIP_DB_CREATE'):
+    with app.app_context():
+        db.create_all()
 
 
 @app.route('/')
