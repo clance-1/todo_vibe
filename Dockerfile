@@ -13,4 +13,5 @@ COPY . /app
 
 EXPOSE 5000
 
-CMD ["flask", "run", "--host=0.0.0.0"]
+# Use Gunicorn for production; binds to container port 5000
+CMD ["gunicorn", "-b", "0.0.0.0:5000", "app:app", "--workers", "3"]
