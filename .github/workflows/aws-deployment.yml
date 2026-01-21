@@ -11,7 +11,7 @@ jobs:
 		env:
 			AWS_REGION: ap-southeast-2
 			EB_APP_NAME: my-todo-app
-			EB_ENV_NAME: clance
+			EB_ENV_NAME: My-todo-app-env
 
 		steps:
 			- name: Checkout code
