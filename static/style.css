@@ -1,10 +1,127 @@
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans KR', Arial; margin:24px; }
-h1 { color:#333 }
-label { margin-right:12px }
-input, select { margin:6px 6px 6px 0; padding:6px }
-button { padding:6px 10px; background:#2d7; border:none; border-radius:4px }
-.item { padding:8px; margin:4px; border-radius:4px; display:flex; justify-content:space-between }
-.cat-study { background:#ffe6e6 }
-.cat-personal { background:#e6f0ff }
-.cat-work { background:#e6ffe6 }
-.del { background:#ff6666; color:white; border:none; padding:4px 8px; border-radius:3px }
+/* Minimal overrides to work with Bootstrap
+	 Keep a few demo-specific color helpers for legacy templates
+*/
+body {
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans KR', Arial;
+	background-color: #f8f9fa;
+}
+
+h1 { color: #333 }
+
+/* Category color tokens (stronger for visibility) */
+.cat-study { background: linear-gradient(90deg,#ffe6e6,#fff0f0); }
+.cat-personal { background: linear-gradient(90deg,#e6f0ff,#f0f7ff); }
+.cat-work { background: linear-gradient(90deg,#e6ffe6,#f0fff0); }
+
+/* Badge spacing */
+.list-group-item .badge { margin-right: 0.5rem }
+
+/* Truncate long titles in list items */
+.todo-title { max-width: 420px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+
+/* Small control sizing helpers */
+.form-control-sm, .form-select-sm { height: calc(1.5em + .5rem + 2px); }
+
+/* Make overall UI more colorful and center content */
+body {
+	background: linear-gradient(180deg,#f7f9fc 0%, #eef6ff 50%, #fffaf0 100%);
+}
+
+/* Navbar gradient and link colors */
+.navbar {
+	background: linear-gradient(90deg,#7c3aed 0%, #06b6d4 100%);
+}
+.navbar .navbar-brand, .navbar .nav-link { color: #fff !important }
+
+/* Center main content and constrain width while keeping responsiveness */
+main.container { display:flex; flex-direction:column; align-items:center; }
+main.container > * { width:100%; max-width:980px; }
+
+/* Make cards slightly more colorful and elevated */
+.card { border: none; box-shadow: 0 4px 14px rgba(20,20,30,0.06); }
+
+/* Category badge explicit colors (ensure contrast) */
+.category-badge { color: #fff; font-weight:600 }
+.category-study { background:#e11d48; }
+.category-personal { background:#2563eb; }
+.category-work { background:#059669; }
+
+/* Design tokens and global brand colors */
+:root {
+	--brand-start: #7c3aed;
+	--brand-end: #06b6d4;
+	--accent: #7c3aed;
+	--accent-2: #06b6d4;
+	--muted: #6b7280;
+	--bg-gradient-start: #f7f9fc;
+	--bg-gradient-mid: #eef6ff;
+	--bg-gradient-end: #fffaf0;
+}
+
+/* Navbar and links */
+.navbar { background: linear-gradient(90deg,var(--brand-start), var(--brand-end)); }
+.navbar .navbar-brand, .navbar .nav-link { color: #fff !important }
+.navbar .nav-link:hover { opacity: 0.95 }
+
+/* Buttons */
+.btn-primary {
+	background: linear-gradient(90deg,var(--brand-start), var(--brand-end));
+	border: none;
+	color: #fff;
+}
+.btn-primary:hover { filter: brightness(0.96); }
+.btn-outline-primary { border-color: rgba(124,58,237,0.2); color: var(--brand-start); }
+
+/* Links */
+a { color: var(--brand-start); }
+a:hover { color: var(--brand-end); text-decoration: underline }
+
+/* Form focus accents */
+.form-control:focus, .form-select:focus {
+	border-color: var(--brand-start);
+	box-shadow: 0 0 0 .2rem rgba(124,58,237,0.12);
+}
+
+/* Footer */
+footer.site-footer {
+	background: linear-gradient(90deg,var(--brand-end),var(--brand-start));
+	color: #fff;
+	padding: 1rem 0;
+}
+
+/* Tables and cards */
+.table thead { background: linear-gradient(90deg, rgba(124,58,237,0.05), rgba(6,182,212,0.03)); }
+.card { border: none; box-shadow: 0 6px 20px rgba(20,20,30,0.06); }
+
+/* Badges and categories */
+.category-badge { color: #fff; font-weight:600 }
+.category-study { background:#e11d48; }
+.category-personal { background:#2563eb; }
+.category-work { background:#059669; }
+
+/* Ensure consistent small-control sizing */
+.form-control-sm, .form-select-sm { height: calc(1.5em + .5rem + 2px); }
+
+/* Global background and centered layout */
+body {
+	background: linear-gradient(180deg,var(--bg-gradient-start) 0%, var(--bg-gradient-mid) 50%, var(--bg-gradient-end) 100%);
+}
+main.container { display:flex; flex-direction:column; align-items:center; }
+main.container > * { width:100%; max-width:980px; }
+
+/* Completed / strike-through style */
+.todo-completed .fw-semibold { text-decoration: line-through; opacity: 0.7; }
+.todo-completed .text-muted { opacity: 0.7; }
+
+/* Edit input sizing inside list rows */
+.list-group-item .edit-input { min-width:220px; }
+.list-group-item .edit-select { max-width:140px; }
+.list-group-item .edit-date { max-width:150px; }
+
+/* Explicit category badge colors to ensure consistent appearance */
+.category-badge { color: #fff }
+.category-study { background: #ff6b6b; }
+.category-personal { background: #3b82f6; }
+.category-work { background: #16a34a; }
+
+
