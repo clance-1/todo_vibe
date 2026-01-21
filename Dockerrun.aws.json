@@ -3,13 +3,13 @@
   "containerDefinitions": [
     {
       "name": "web",
-      "image": "<your-dockerhub-username>/flask-todo-app:latest",
+      "image": "<DOCKER_USERNAME>/flask-todo-app:latest",
       "essential": true,
       "memory": 512,
       "portMappings": [
         {
           "containerPort": 5000,
-          "hostPort": 5000
+          "hostPort": 80
         }
       ],
       "environment": [
@@ -23,7 +23,7 @@
       "memory": 512,
       "environment": [
         { "name": "POSTGRES_USER", "value": "todo_user" },
-        { "name": "POSTGRES_PASSWORD", "value": "secret" },
+        { "name": "POSTGRES_PASSWORD", "value": "" },
         { "name": "POSTGRES_DB", "value": "todo_db" }
       ],
       "portMappings": [
