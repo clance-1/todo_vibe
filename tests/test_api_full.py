@@ -1,3 +1,9 @@
+"""통합 API 테스트 모듈.
+
+여러 시나리오(인증 필요 여부, 생성 유효성, 필터링/페이징, 권한 등)를
+검증하는 테스트들을 포함합니다.
+"""
+
 import sys
 import pathlib
 import pytest
@@ -24,14 +30,17 @@ def client(tmp_path):
 
 
 def register(client, username, password='pw'):
+    """테스트 클라이언트에서 사용자 등록 요청을 보냅니다."""
     return client.post('/register', data={'username': username, 'password': password})
 
 
 def login(client, username, password='pw'):
+    """테스트 클라이언트에서 로그인 요청을 보냅니다."""
     return client.post('/login', data={'username': username, 'password': password}, follow_redirects=True)
 
 
 def create_todo(client, title, category, date):
+    """테스트 클라이언트로 할일 생성 API를 호출합니다."""
     return client.post('/api/todos', json={'title': title, 'category': category, 'date': date})
 
 

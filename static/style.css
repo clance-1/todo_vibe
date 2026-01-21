@@ -109,6 +109,15 @@ body {
 main.container { display:flex; flex-direction:column; align-items:center; }
 main.container > * { width:100%; max-width:980px; }
 
+/* Completed / strike-through style */
+.todo-completed .fw-semibold { text-decoration: line-through; opacity: 0.7; }
+.todo-completed .text-muted { opacity: 0.7; }
+
+/* Edit input sizing inside list rows */
+.list-group-item .edit-input { min-width:220px; }
+.list-group-item .edit-select { max-width:140px; }
+.list-group-item .edit-date { max-width:150px; }
+
 /* Explicit category badge colors to ensure consistent appearance */
 .category-badge { color: #fff }
 .category-study { background: #ff6b6b; }

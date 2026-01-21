@@ -1,88 +1,96 @@
-# todo_vibe - Demo Flask ToDo App
+# todo_vibe
 
-간단한 교육용 ToDo 데모(Flask)
+간단한 교육용 Flask ToDo 데모 애플리케이션
 
-요약 변경사항
+**개요**
 
-- UI: Bootstrap 5 적용 — `templates/login.html`, `templates/register.html`, `templates/todos.html`가 `templates/base.html`을 상속하도록 리팩터링되었습니다.
-- 스타일: `static/style.css`를 Bootstrap 친화적으로 정리하여 충돌 최소화 및 데모 색상 보존(카테고리 색상)
-- 인프라: Alembic 마이그레이션 스캐폴딩 및 `docker-compose`(Postgres) 지원 추가
-- 브랜치: 변경사항은 원격 브랜치 `001-flask-todo-app`에 푸시되어 있습니다.
-- 브랜치: 변경사항은 원격 브랜치 `001-flask-todo-app`에 푸시되어 있습니다.
+- 이 저장소는 수업 및 실습용으로 만든 간단한 ToDo 웹 애플리케이션입니다. 기본 기능으로 회원가입/로그인, 할 일 생성·수정·삭제, 카테고리와 완료 표시를 제공합니다.
+- UI는 Bootstrap 5 기반으로 리팩터링되었고, Alembic 마이그레이션과 Docker 지원을 포함합니다.
 
-Recent updates (2026-01-20):
+**주요 기능**
 
-- Navigation simplified: the site brand/logo now links to `/todos`. Redundant `홈` / `내 할일` links were removed; authenticated users see only `로그아웃`, guests see `로그인`/`회원가입`.
-- Route alias: `/todos` is supported and redirects to the canonical `todos_page` route to maintain compatibility with older links.
-- Templates restored/rebuilt: `templates/base.html`, `templates/login.html`, `templates/register.html`, and `templates/todos.html` were rewritten to match the updated UI spec.
-- Validation and schemas: `app_schemas.py` updated to validate `category` choices and use date typing; partial updates supported in `TodoUpdate`.
-- Tests: comprehensive API tests added in `tests/test_api_full.py` covering success, validation failures, auth failures, authorization, paging, and edge cases. All tests pass locally (`pytest` — 5 passed).
-- Debug helper: `scripts/debug_api.py` added to assist reproducing API requests locally during development.
+- 사용자 인증(간단한 데모용)
+- 할 일 CRUD (제목, 설명, 카테고리, 마감일, 완료 상태)
+- 카테고리별 색상 표시 및 간단한 필터링
+- RESTful API 엔드포인트 및 통합 테스트
 
-If you maintain external links or bookmarks, point them to `/todos` (or the root URL which redirects to login when unauthenticated).
+**사전 준비**
 
-Prerequisites
-
-- Python 3.8+ (권장 3.11)
-- Docker Desktop (선택, 로컬 Postgres 사용 시)
+- Python 3.8 이상(권장 3.11)
 - 권장: 가상환경 사용
+- 선택: Docker Desktop (Postgres 사용 시)
 
-설치
+**설치 및 실행 (로컬, SQLite)**
+
+1. 가상환경 생성 및 활성화
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
+```
+
+2. 의존성 설치
+
+```powershell
 pip install -r requirements.txt
 ```
 
-실행 (로컬 SQLite)
+3. 애플리케이션 실행
 
 ```powershell
 python app.py
 ```
 
-실행 (Docker + Postgres)
+웹 브라우저에서 http://localhost:5000 접속
 
-1. Build and start services (requires Docker Desktop):
+**Docker + Postgres로 실행**
+
+1. Docker로 서비스 빌드 및 시작
 
 ```bash
 docker-compose up --build -d
 ```
 
-2. Open `http://localhost:5000`
+2. http://localhost:5000 접속
 
-Default Postgres credentials (for local dev only):
+로컬 개발용 기본 Postgres 자격정보는 `docker-compose.yml`을 참조하세요.
 
-- user: `todo_user`
-- password: `secret`
-- db: `todo_db`
+**테스트**
 
-Tests
-
-Run tests locally (uses SQLite temp DB):
+로컬에서 제공되는 테스트 실행 (SQLite 사용)
 
 ```bash
-python -m pytest tests/test_app.py
+python -m pytest
 ```
 
-Database migrations
+통합 테스트는 `tests/test_api_full.py`에 포함되어 있습니다.
 
-Alembic scaffolding is included. To run migrations against the configured DB:
+**마이그레이션**
+
+Alembic 설정이 포함되어 있습니다. DB 마이그레이션 적용:
 
 ```bash
 alembic upgrade head
 ```
 
-Notes on UI
+**구조 요약**
 
-- Bootstrap 5 is loaded from CDN in `templates/base.html`. The app templates now use Bootstrap classes for responsive layouts.
-- `static/style.css` contains only minimal overrides and demo category color helpers to avoid conflicting with Bootstrap styles.
+- app.py: 진입점
+- app_schemas.py: 요청/응답 스키마 유효성 검사
+- templates/: Jinja2 템플릿
+- static/: 정적 파일(css)
+- tests/: 단위 및 통합 테스트
+- specs/ 및 docs/: 설계·사양·체크리스트
 
-Security note
+**보안 주의**
 
-For demo purposes, the app currently stores and compares passwords in plaintext. This is insecure and intended only for classroom demos. Do NOT use this code in production without replacing with secure password hashing (e.g., `werkzeug.security.generate_password_hash` and `check_password_hash`). A blocking task (`T026`) exists in `specs/001-flask-todo-app/tasks.md` to require secure password storage before any non-demo release.
+현재 데모 구현은 교육 목적으로 간단히 처리되어 있습니다. 특히 비밀번호 저장/비교가 안전한 해시 방식으로 되어 있지 않다면 절대 운영 환경에 배포하지 마십시오. 실제 서비스로 전환 시 `werkzeug.security` 기반 해싱으로 대체해야 합니다.
 
-Branching
+**기여**
 
-The feature work is available on branch `001-flask-todo-app` (remote). Use that branch to review recent UI and infra changes.
+기여는 환영합니다. 작은 버그 수정이나 문서 개선부터 시작해 주세요. 기여 가이드라인은 `docs/CONTRIBUTING.md`(있다면)를 참조하십시오.
+
+---
+
+필요하시면 이 README에 영문 버전이나 자세한 개발 가이드를 추가해 드리겠습니다.
 

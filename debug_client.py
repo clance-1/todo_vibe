@@ -1,3 +1,9 @@
+"""간단한 통합 테스트 클라이언트 스크립트.
+
+이 스크립트는 테스트용으로 Flask `app`을 사용해 기본적인 등록/로그인/CRUD
+시나리오를 실행하고 결과를 출력합니다. 수동으로 빠르게 API를 확인할 때 유용합니다.
+"""
+
 from app import app, db
 
 with app.test_client() as client:

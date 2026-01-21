@@ -2,9 +2,16 @@ from flask import Flask, jsonify, request, abort, render_template, redirect, url
 import os
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-"""
-NOTE: For demo purposes only — passwords stored/compared in plaintext per user request.
-THIS IS INSECURE: do NOT use in production.
+
+"""todo_vibe 애플리케이션 모듈
+
+이 모듈은 Flask 애플리케이션, SQLAlchemy 모델, 라우트 핸들러 및 API 엔드포인트를
+제공합니다. 현재 저장소는 데모 목적이며 일부 구현(예: 비밀번호 저장)은 보안에
+취약합니다. 실제 운영 환경에서는 명시된 경고를 따르고 적절한 보안 조치를
+적용하세요.
+
+경고: 본 데모는 비밀번호를 평문으로 저장/비교합니다 — 운영 환경에서는 절대
+사용하지 마시고 안전한 해시 함수를 사용하세요.
 """
 from datetime import datetime
 from pydantic import ValidationError
@@ -24,20 +31,38 @@ login_manager.login_view = 'login'
 
 
 class User(db.Model, UserMixin):
+    """사용자 모델.
+
+    간단한 데모용 모델로 `username`과 `password_hash`(데모에서는 평문)를 저장합니다.
+    """
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(200), nullable=False)
 
     def set_password(self, pw):
-        # store plaintext password (DEMO ONLY)
+        """사용자 비밀번호를 저장합니다 (데모용).
+
+        경고: 이 구현은 평문으로 비밀번호를 저장합니다. 운영 환경에서는
+        werkzeug.security.generate_password_hash 같은 함수로 해시하여 저장하세요.
+        """
+        # 데모: 평문으로 저장
         self.password_hash = pw
 
     def check_password(self, pw):
-        # plaintext comparison (DEMO ONLY)
+        """제공된 비밀번호가 저장된 값과 일치하는지 확인합니다 (데모용 평문 비교).
+
+        Returns:
+            bool: 일치하면 True, 아니면 False.
+        """
+        # 데모: 평문 비교
         return self.password_hash == pw
 
 
 class Todo(db.Model):
+    """할일(Todo) 모델.
+
+    필드: `title`, `category`, `date`, `completed`, `created_at`.
+    """
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     title = db.Column(db.String(200), nullable=False)
@@ -49,6 +74,14 @@ class Todo(db.Model):
 
 @login_manager.user_loader
 def load_user(user_id):
+    """Flask-Login에서 사용자 ID로 `User` 객체를 로드합니다.
+
+    Args:
+        user_id (str|int): 로드하려는 사용자의 ID.
+
+    Returns:
+        User | None: 존재하면 `User` 인스턴스, 없으면 `None`.
+    """
     return db.session.get(User, int(user_id))
 
 
@@ -59,6 +92,7 @@ with app.app_context():
 
 @app.route('/')
 def index():
+    """루트 라우트: 인증된 사용자는 할일 페이지로, 아니면 로그인 페이지로 리다이렉트합니다."""
     if current_user.is_authenticated:
         return redirect(url_for('todos_page'))
     return redirect(url_for('login'))
@@ -66,6 +100,12 @@ def index():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    """사용자 등록을 처리합니다.
+
+    POST: 폼 데이터를 검증하여 새 사용자를 생성하고 로그인시킨 뒤 할일 페이지로
+    리다이렉트합니다.
+    GET: 등록 폼을 렌더링합니다.
+    """
     if request.method == 'POST':
         data = request.form
         username = data.get('username')
@@ -87,6 +127,11 @@ def register():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    """사용자 로그인을 처리합니다.
+
+    POST: 폼 자격증명을 확인하고 성공하면 로그인한 뒤 할일 페이지로 리다이렉트합니다.
+    GET: 로그인 폼을 렌더링합니다.
+    """
     if request.method == 'POST':
         data = request.form
         username = data.get('username')
@@ -103,6 +148,7 @@ def login():
 @app.route('/logout')
 @login_required
 def logout():
+    """현재 사용자를 로그아웃시키고 로그인 페이지로 리다이렉트합니다."""
     logout_user()
     return redirect(url_for('login'))
 
@@ -110,13 +156,14 @@ def logout():
 @app.route('/todos_page')
 @login_required
 def todos_page():
+    """인증된 사용자에게 할일 페이지를 렌더링합니다."""
     return render_template('todos.html')
 
 
 @app.route('/todos')
 @login_required
 def todos_alias():
-    # Alias for legacy /todos link in templates -> redirect to canonical todos_page
+    """레거시 `/todos` 경로를 `todos_page`로 리다이렉트합니다 (호환성 유지)."""
     return redirect(url_for('todos_page'))
 
 
@@ -124,6 +171,11 @@ def todos_alias():
 @app.route('/api/todos', methods=['GET', 'POST'])
 @login_required
 def api_todos():
+    """현재 사용자의 할일 목록 조회 및 생성 API 엔드포인트.
+
+    GET: 선택적 필터(`date`, `category`) 및 페이징(`page`, `limit`)을 지원합니다.
+    POST: JSON 페이로드를 `TodoCreate` Pydantic 스키마로 검증한 뒤 새 항목을 생성합니다.
+    """
     if request.method == 'GET':
         date = request.args.get('date')
         category = request.args.get('category')
@@ -173,6 +225,11 @@ def api_todos():
 @app.route('/api/todos/<int:todo_id>', methods=['PUT', 'DELETE'])
 @login_required
 def api_todo_modify(todo_id):
+    """지정된 `todo_id`에 대해 수정 또는 삭제를 수행합니다.
+
+    PUT: `TodoUpdate` Pydantic 스키마로 검증한 이후 제공된 필드만 적용합니다.
+    DELETE: 항목을 삭제하고 204 응답을 반환합니다.
+    """
     t = Todo.query.filter_by(id=todo_id, user_id=current_user.id).first()
     if not t:
         return jsonify({'error': 'not found'}), 404

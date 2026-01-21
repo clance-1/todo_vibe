@@ -1,8 +1,14 @@
+"""간단한 API 디버그 스크립트.
+
+로컬에서 애플리케이션을 테스트 모드로 실행하여 CRUD 흐름을 확인합니다.
+"""
+
 import sys, pathlib
 sys.path.append(str(pathlib.Path(__file__).resolve().parents[1]))
 from app import app, db
 
 def run():
+    """Test client를 사용해 기본적인 API 흐름을 실행합니다."""
     app.config['TESTING'] = True
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
     with app.test_client() as c:

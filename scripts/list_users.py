@@ -1,3 +1,5 @@
+"""데이터베이스에 존재하는 사용자 목록을 출력하는 스크립트."""
+
 from pathlib import Path
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
