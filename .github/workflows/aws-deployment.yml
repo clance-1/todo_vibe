@@ -37,7 +37,8 @@ jobs:
           echo "Verifying AWS credentials..."
           aws sts get-caller-identity || (echo "Invalid AWS credentials" && exit 1)
           if [ -z "$AWS_REGION" ]; then
-            echo "Repository secret 'AWS_REGION' is not set. Set it to 'ap-southeast-2'." && exit 1
+            echo "Repository secret 'AWS_REGION' is not set. Falling back to 'ap-southeast-2'."
+            AWS_REGION="ap-southeast-2"
           fi
           case "$AWS_REGION" in
             southeast-2) AWS_REGION="ap-southeast-2" ;;
