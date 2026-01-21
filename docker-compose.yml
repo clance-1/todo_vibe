@@ -3,14 +3,12 @@ services:
   web:
     build: .
     ports:
-      - "5000:5000"
-    volumes:
-      - ./:/app
+      - "80:5000"
     environment:
       - FLASK_APP=app.py
-      - FLASK_ENV=development
+      - FLASK_ENV=production
       - SQLALCHEMY_DATABASE_URI=postgresql+psycopg://todo_user:secret@db:5432/todo_db
-    command: flask run --host=0.0.0.0
+    command: gunicorn -b 0.0.0.0:5000 app:app --workers 3
     depends_on:
       - db
 
