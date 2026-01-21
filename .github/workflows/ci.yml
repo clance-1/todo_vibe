@@ -56,3 +56,26 @@ jobs:
           SQLALCHEMY_DATABASE_URI: postgresql+psycopg://todo_user:secret@127.0.0.1:5432/todo_db
         run: |
           python -m pytest -q
+
+  notify:
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Post PR comment with CI result
+        uses: actions/github-script@v7
+        env:
+          JOB_RESULT: ${{ needs.test.result }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pr = context.payload.pull_request;
+            if (!pr) {
+              core.info('No pull_request context; skipping comment.');
+            } else {
+              const owner = context.repo.owner;
+              const repo = context.repo.repo;
+              const issue_number = pr.number;
+              const body = `CI result for commit ${process.env.GITHUB_SHA.slice(0,7)}: **${process.env.JOB_RESULT}**\n\nSee workflow run: ${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`;
+              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+            }
