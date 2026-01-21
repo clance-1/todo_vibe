@@ -55,8 +55,19 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
         run: |
           export PATH=$PATH:~/.local/bin
+          # Determine region at runtime (fallback to ap-southeast-2)
+          if [ -z "$AWS_REGION" ]; then
+            echo "AWS_REGION secret empty, falling back to ap-southeast-2"
+            AWS_REGION="ap-southeast-2"
+          fi
+          case "$AWS_REGION" in
+            southeast-2) AWS_REGION="ap-southeast-2" ;;
+            southeast-1) AWS_REGION="ap-southeast-1" ;;
+            *) AWS_REGION="$AWS_REGION" ;;
+          esac
+          echo "Using AWS region: $AWS_REGION"
           # Initialize EB app (app name 'my-todo-app' used as placeholder)
-          eb init -p docker my-todo-app --region $AWS_DEFAULT_REGION || true
+          eb init -p docker my-todo-app --region "$AWS_REGION" || true
           # Select and deploy to the provided environment name 'clance'
           eb use clance || true
           eb deploy clance
