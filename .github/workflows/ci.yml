@@ -60,7 +60,6 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     needs: test
-    if: github.event_name == 'pull_request'
     steps:
       - name: Post PR comment with CI result
         uses: actions/github-script@v7
@@ -69,13 +68,20 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const pr = context.payload.pull_request;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            // Try to get PR from event payload (pull_request events)
+            let pr = context.payload.pull_request;
+            // If not present (e.g. push-triggered run), try to find an open PR for the head ref
             if (!pr) {
-              core.info('No pull_request context; skipping comment.');
+              const headRef = process.env.GITHUB_REF.replace('refs/heads/', '');
+              const list = await github.rest.pulls.list({ owner, repo, head: `${owner}:${headRef}`, state: 'open' });
+              pr = list.data && list.data.length ? list.data[0] : null;
+            }
+            if (!pr) {
+              core.info('No pull request found for this run; skipping comment.');
             } else {
-              const owner = context.repo.owner;
-              const repo = context.repo.repo;
               const issue_number = pr.number;
-              const body = `CI result for commit ${process.env.GITHUB_SHA.slice(0,7)}: **${process.env.JOB_RESULT}**\n\nSee workflow run: ${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`;
+              const body = `CI result for commit ${process.env.GITHUB_SHA.slice(0,7)}: **${process.env.JOB_RESULT || 'unknown'}**\n\nSee workflow run: ${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`;
               await github.rest.issues.createComment({ owner, repo, issue_number, body });
             }
