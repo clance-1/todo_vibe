@@ -1,79 +1,79 @@
 name: AWS Deployment
 
 on:
-	push:
-		branches:
-			- aws-deployment
+  push:
+    branches:
+      - aws-deployment
 
 jobs:
-	deploy:
-		runs-on: ubuntu-latest
-		env:
-			AWS_REGION: ap-southeast-2
-			EB_APP_NAME: my-todo-app
-			EB_ENV_NAME: My-todo-app-env
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      AWS_REGION: ap-southeast-2
+      EB_APP_NAME: my-todo-app
+      EB_ENV_NAME: My-todo-app-env
 
-		steps:
-			- name: Checkout code
-				uses: actions/checkout@v4
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-			- name: Log in to Docker Hub
-				env:
-					DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-					DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-				run: |
-					echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      - name: Log in to Docker Hub
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: |
+          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
-			- name: Build and push Docker image
-				env:
-					DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-				run: |
-					docker build -t $DOCKER_USERNAME/flask-todo-app:latest .
-					docker push $DOCKER_USERNAME/flask-todo-app:latest
+      - name: Build and push Docker image
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        run: |
+          docker build -t $DOCKER_USERNAME/flask-todo-app:latest .
+          docker push $DOCKER_USERNAME/flask-todo-app:latest
 
-			- name: Update Dockerrun with pushed image name
-				env:
-					DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-				run: |
-					if [ -f Dockerrun.aws.json ]; then
-						sed -i "s|<your-dockerhub-username>|$DOCKER_USERNAME|g" Dockerrun.aws.json
-						echo "Updated Dockerrun.aws.json:"
-						cat Dockerrun.aws.json
-					else
-						echo "Dockerrun.aws.json not found — ensure your EB configuration is correct." && exit 1
-					fi
+      - name: Update Dockerrun with pushed image name
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        run: |
+          if [ -f Dockerrun.aws.json ]; then
+            sed -i "s|<your-dockerhub-username>|$DOCKER_USERNAME|g" Dockerrun.aws.json
+            echo "Updated Dockerrun.aws.json:"
+            cat Dockerrun.aws.json
+          else
+            echo "Dockerrun.aws.json not found — ensure your EB configuration is correct." && exit 1
+          fi
 
-			- name: Install AWS CLI and EB CLI
-				run: |
-					sudo apt-get update
-					sudo apt-get install -y python3-pip
-					pip3 install --upgrade --user awscli awsebcli
-					echo "PATH=~/.local/bin:$PATH" >> $GITHUB_ENV
+      - name: Install AWS CLI and EB CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-pip
+          pip3 install --upgrade --user awscli awsebcli
+          echo "PATH=~/.local/bin:$PATH" >> $GITHUB_ENV
 
-			- name: Verify AWS credentials
-				env:
-					AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-					AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-					AWS_REGION: ${{ env.AWS_REGION }}
-				run: |
-					export PATH=~/.local/bin:$PATH
-					echo "AWS CLI: $(aws --version)"
-					echo "EB CLI: $(eb --version)"
-					aws sts get-caller-identity
+      - name: Verify AWS credentials
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ env.AWS_REGION }}
+        run: |
+          export PATH=~/.local/bin:$PATH
+          echo "AWS CLI: $(aws --version)"
+          echo "EB CLI: $(eb --version)"
+          aws sts get-caller-identity
 
-			- name: Initialize and deploy to Elastic Beanstalk
-				env:
-					AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-					AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-					AWS_REGION: ${{ env.AWS_REGION }}
-					EB_APP_NAME: ${{ env.EB_APP_NAME }}
-					EB_ENV_NAME: ${{ env.EB_ENV_NAME }}
-				run: |
-					export PATH=~/.local/bin:$PATH
-					echo "Using region: $AWS_REGION, app: $EB_APP_NAME, env: $EB_ENV_NAME"
-					eb init -p docker "$EB_APP_NAME" --region "$AWS_REGION" || true
-					if ! eb status "$EB_ENV_NAME" >/dev/null 2>&1; then
-						echo "Environment '$EB_ENV_NAME' not found in app '$EB_APP_NAME' and region '$AWS_REGION'." && exit 1
-					fi
-					eb use "$EB_ENV_NAME" || true
-					eb deploy "$EB_ENV_NAME"
+      - name: Initialize and deploy to Elastic Beanstalk
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ env.AWS_REGION }}
+          EB_APP_NAME: ${{ env.EB_APP_NAME }}
+          EB_ENV_NAME: ${{ env.EB_ENV_NAME }}
+        run: |
+          export PATH=~/.local/bin:$PATH
+          echo "Using region: $AWS_REGION, app: $EB_APP_NAME, env: $EB_ENV_NAME"
+          eb init -p docker "$EB_APP_NAME" --region "$AWS_REGION" || true
+          if ! eb status "$EB_ENV_NAME" >/dev/null 2>&1; then
+            echo "Environment '$EB_ENV_NAME' not found in app '$EB_APP_NAME' and region '$AWS_REGION'." && exit 1
+          fi
+          eb use "$EB_ENV_NAME" || true
+          eb deploy "$EB_ENV_NAME"
