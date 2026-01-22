@@ -94,3 +94,49 @@ alembic upgrade head
 
 필요하시면 이 README에 영문 버전이나 자세한 개발 가이드를 추가해 드리겠습니다.
 
+**REST API 엔드포인트**
+
+- **인증**: 모든 API 엔드포인트는 로그인(세션 기반 인증)이 필요합니다.
+- **기본 경로**: `/api`
+
+- **GET /api/todos**: 현재 사용자의 할일 목록 조회
+	- 쿼리 파라미터: `date` (YYYY-MM-DD), `category` (study|personal|work), `page` (정수), `limit` (정수)
+	- 응답: `200` JSON 배열 (Todo 객체 목록)
+	- 오류: `400` (잘못된 파라미터/유효성 실패)
+
+- **POST /api/todos**: 현재 사용자의 할일 생성
+	- 요청 본문(JSON): `title`(string, 필수), `category`(string, 필수; `study`, `personal`, `work` 중 하나), `date`(string, YYYY-MM-DD, 필수)
+	- 응답: `201` 생성된 Todo 객체
+	- 오류: `400` (유효성 실패)
+
+- **PUT /api/todos/{todo_id}**: 지정한 할일 수정
+	- 경로 파라미터: `todo_id` (정수)
+	- 요청 본문(JSON): 수정할 필드 중 선택 (`title`, `category`, `date`, `completed`)
+	- 응답: `200` 수정된 Todo 객체
+	- 오류: `400` (유효성 실패), `404` (존재하지 않음), `403` (권한 없음)
+
+- **DELETE /api/todos/{todo_id}**: 지정한 할일 삭제
+	- 경로 파라미터: `todo_id` (정수)
+	- 응답: `204` (삭제됨)
+	- 오류: `404` (존재하지 않음), `403` (권한 없음)
+
+간단한 예시 (인증 후 세션이 유지된 상태에서):
+
+```bash
+# 할일 목록 조회
+curl -X GET http://localhost:5000/api/todos
+
+# 할일 생성
+curl -X POST http://localhost:5000/api/todos \
+	-H "Content-Type: application/json" \
+	-d '{"title":"Study A","category":"study","date":"2026-01-20"}'
+
+# 할일 수정
+curl -X PUT http://localhost:5000/api/todos/1 \
+	-H "Content-Type: application/json" \
+	-d '{"completed":true}'
+
+# 할일 삭제
+curl -X DELETE http://localhost:5000/api/todos/1
+```
+
