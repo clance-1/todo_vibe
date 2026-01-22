@@ -1,21 +1,21 @@
 version: '3.8'
+
 services:
   web:
     build: .
     ports:
-      - "5000:5000"
-    volumes:
-      - ./:/app
+      - "80:5000"
     environment:
-      - FLASK_APP=app.py
-      - FLASK_ENV=development
-      - SQLALCHEMY_DATABASE_URI=postgresql+psycopg://todo_user:secret@db:5432/todo_db
-    command: flask run --host=0.0.0.0
+      FLASK_APP: app.py
+      FLASK_ENV: production
+      SQLALCHEMY_DATABASE_URI: postgresql+psycopg://todo_user:secret@db:5432/todo_db
+    command: gunicorn -b 0.0.0.0:5000 app:app --workers 3
     depends_on:
       - db
 
   db:
     image: postgres:15
+    restart: unless-stopped
     environment:
       POSTGRES_USER: todo_user
       POSTGRES_PASSWORD: secret

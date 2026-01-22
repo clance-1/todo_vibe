@@ -1,0 +1,53 @@
+name: AWS Deployment (Docker Compose)
+
+on:
+  push:
+    branches:
+      - aws-deployment
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      AWS_REGION: ap-southeast-2
+      EB_APP_NAME: my-todo-app
+      EB_ENV_NAME: My-todo-app-env
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install AWS CLI and EB CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-pip
+          pip3 install --upgrade --user awscli awsebcli
+          echo "PATH=~/.local/bin:$PATH" >> $GITHUB_ENV
+
+      - name: Verify AWS credentials
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ env.AWS_REGION }}
+        run: |
+          export PATH=~/.local/bin:$PATH
+          echo "AWS CLI: $(aws --version)"
+          echo "EB CLI: $(eb --version)"
+          aws sts get-caller-identity
+
+      - name: Deploy to Elastic Beanstalk (Compose)
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ env.AWS_REGION }}
+          EB_APP_NAME: ${{ env.EB_APP_NAME }}
+          EB_ENV_NAME: ${{ env.EB_ENV_NAME }}
+        run: |
+          export PATH=~/.local/bin:$PATH
+          echo "Deploying docker-compose.yml to EB: region=$AWS_REGION, app=$EB_APP_NAME, env=$EB_ENV_NAME"
+          eb init -p docker "$EB_APP_NAME" --region "$AWS_REGION" || true
+          if ! eb status "$EB_ENV_NAME" >/dev/null 2>&1; then
+            echo "Environment '$EB_ENV_NAME' not found." && exit 1
+          fi
+          eb use "$EB_ENV_NAME"
+          eb deploy "$EB_ENV_NAME"
