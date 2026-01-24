@@ -31,3 +31,7 @@ instance/
 
 # Local Docker compose for development (ignored)
 docker-compose.local.yml
+
+# Ignore agent metadata and prompt drafts
+.github/agents/
+promts/
