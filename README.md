@@ -139,5 +139,6 @@ curl -X PUT http://localhost:5000/api/todos/1 \
 # 할일 삭제
 curl -X DELETE http://localhost:5000/api/todos/1
 ```
+
 # 배포 사이트
-http://clance.ap-southeast-2.elasticbeanstalk.com/login
+<http://clance.ap-southeast-2.elasticbeanstalk.com/login>
