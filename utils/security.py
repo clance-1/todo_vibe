@@ -3,7 +3,6 @@
 Provides a small abstraction over werkzeug security functions so the
 application code depends on a single, testable API.
 """
-from typing import Any
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
