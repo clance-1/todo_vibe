@@ -30,5 +30,4 @@ def verify_password(stored_hash: str, password: str) -> bool:
     Returns:
         True if the password matches the hash, False otherwise.
     """
-    # type: (str, str) -> bool
     return check_password_hash(stored_hash, password)
