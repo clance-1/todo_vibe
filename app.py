@@ -14,6 +14,9 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 사용하지 마시고 안전한 해시 함수를 사용하세요.
 """
 from datetime import datetime
+from typing import Optional
+
+from utils.security import hash_password, verify_password
 from pydantic import ValidationError
 from app_schemas import TodoCreate, TodoUpdate
 
@@ -39,23 +42,23 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(200), nullable=False)
 
-    def set_password(self, pw):
+    def set_password(self, pw: str) -> None:
         """사용자 비밀번호를 저장합니다 (데모용).
 
         경고: 이 구현은 평문으로 비밀번호를 저장합니다. 운영 환경에서는
         werkzeug.security.generate_password_hash 같은 함수로 해시하여 저장하세요.
         """
-        # 데모: 평문으로 저장
-        self.password_hash = pw
+        # 해시로 저장
+        self.password_hash = hash_password(pw)
 
-    def check_password(self, pw):
+    def check_password(self, pw: str) -> bool:
         """제공된 비밀번호가 저장된 값과 일치하는지 확인합니다 (데모용 평문 비교).
 
         Returns:
             bool: 일치하면 True, 아니면 False.
         """
-        # 데모: 평문 비교
-        return self.password_hash == pw
+        # 해시 비교
+        return verify_password(self.password_hash, pw)
 
 
 class Todo(db.Model):
