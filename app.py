@@ -14,7 +14,6 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 사용하지 마시고 안전한 해시 함수를 사용하세요.
 """
 from datetime import datetime
-from typing import Optional
 
 from utils.security import hash_password, verify_password
 from pydantic import ValidationError
